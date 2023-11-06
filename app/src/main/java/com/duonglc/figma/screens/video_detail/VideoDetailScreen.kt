@@ -1,15 +1,18 @@
 package com.duonglc.figma.screens.video_detail
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,27 +24,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.duonglc.figma.ui.theme.FigmaTheme
 import androidx.compose.ui.unit.*
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
 import com.duonglc.figma.R
+import com.duonglc.figma.types.VideoCategory
 import com.duonglc.figma.types.VideoData
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VideoDetailScreen(modifier: Modifier = Modifier, openCategoryScreen: () -> Unit) {
+    val videoData = fakerData()
+    val listState = rememberLazyListState()
+    val isShowFilterCategory by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0
+        }
+    }
+
     LazyColumn(
+        state = listState,
         verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier
+            .fillMaxSize()
     ){
 
-    val videoData = fakerData()
 
     stickyHeader {
+
         VideoDetail(
             videoThumb = R.drawable.video_thumbnail,
             videoTitle = "Android Jetpack Compose List and Grid",
             views = 1210,
-            timeAgo = "1 day ago"
+            timeAgo = "1 day ago",
+            isShowFilterCategory = isShowFilterCategory
         )
+
     }
 
     items(videoData.size) { index ->
@@ -73,6 +88,79 @@ fun fakerData(): List<VideoData> {
     }
     return list
 }
+
+
+fun fakerCategory(): List<VideoCategory> {
+    val list = mutableListOf<VideoCategory>()
+    for (i in 0..10) {
+        list.add(
+            VideoCategory(
+                // fake categoryId == index when loop
+                categoryId = i,
+                // name is random
+                 categoryName = "Category $i"            )
+        )
+    }
+    return list
+}
+
+
+
+
+@Composable
+fun FilterCategory(
+    modifier: Modifier = Modifier,
+){
+    val categories = fakerCategory()
+
+    var isSelectedCategory by remember{
+        mutableIntStateOf(1)
+    }
+
+
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(
+            horizontal = 12.dp
+        )
+    ) {
+        items(categories){
+            category ->
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(color = if (isSelectedCategory == category.categoryId) Color(0xFF6C6C6C) else Color(0xFFECECEC))
+                        .border(
+                            width = 1.dp,
+                            color = Color(0xFFCECECE),
+                            shape = RoundedCornerShape(24.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 8.dp)
+                        .clickable {
+                            // log
+                            isSelectedCategory = category.categoryId
+                        }
+                ) {
+                    Text(
+                        text = category.categoryName,
+                        style = TextStyle(
+                            color = if (isSelectedCategory == category.categoryId) Color.White else Color.Black,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.W400
+                        ),
+                    )
+
+                }
+
+        }
+    }
+    
+
+}
+
+
+
 
 
 
@@ -160,10 +248,15 @@ fun VideoDetail(
     @DrawableRes videoThumb: Int,
     videoTitle: String,
     views: Int,
-    timeAgo: String
+    timeAgo: String,
+    isShowFilterCategory: Boolean = true
 ) {
 
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+
+    ) {
         Image(
             painter = painterResource(id = videoThumb), contentDescription = null,
             contentScale = ContentScale.FillWidth,
@@ -175,17 +268,32 @@ fun VideoDetail(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(color = Color.White)
                 .padding(top = 12.dp)
         ) {
 
-            VideoDetailInfo(
-                videoTitle = videoTitle,
-                views = views,
-                timeAgo = timeAgo,
-                modifier = Modifier.padding(horizontal = 12.dp)
-            )
 
-            VideoAction()
+
+            if (isShowFilterCategory){
+                Box(
+                    modifier= Modifier.padding(
+                        vertical = 12.dp
+                    ).fillMaxWidth().background(color = Color.White)
+                ){
+
+                FilterCategory()
+                }
+            } else {
+                VideoDetailInfo(
+                    videoTitle = videoTitle,
+                    views = views,
+                    timeAgo = timeAgo,
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                VideoAction()
+            }
+
 
         }
 
@@ -323,7 +431,10 @@ fun NextVideoInfo(videoTitle: String, views: Int, timeAgo: String, modifier: Mod
 
 @Composable
 fun NextVideo(videoTitle: String, views: Int, timeAgo: String, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
         Image(
             painter = painterResource(id = R.drawable.thumbnail_next_video),
             contentDescription = null,

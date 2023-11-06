@@ -8,7 +8,7 @@ data class VideoData(
     val videoThumb: Int,
 )
 
-data class VideoCategoru(
-    val Categoryid: Int,
+data class VideoCategory(
+    val categoryId: Int,
     val categoryName: String
 )
