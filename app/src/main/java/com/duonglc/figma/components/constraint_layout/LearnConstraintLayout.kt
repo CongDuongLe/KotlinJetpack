@@ -1,4 +1,4 @@
-package com.duonglc.figma.screens.constraint_layout
+package com.duonglc.figma.components.constraint_layout
 
 import android.inputmethodservice.Keyboard
 import androidx.annotation.DrawableRes

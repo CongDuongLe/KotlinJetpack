@@ -9,14 +9,9 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.*
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.duonglc.figma.screens.ScreenTypes
-import com.duonglc.figma.screens.category.CategoryScreen
-import com.duonglc.figma.screens.video_detail.VideoDetailScreen
+import com.duonglc.figma.navigation.AppNavigator
 import com.duonglc.figma.ui.theme.FigmaTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,11 +19,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            FigmaTheme {
                 // A surface container using the 'background' color from the theme
                     MainApp()
-
-                }
             }
         }
     }
@@ -37,20 +29,22 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainApp(){
-    var currentScreen by remember { mutableStateOf(ScreenTypes.DETAIL) }
+//    var currentScreen by remember { mutableStateOf(ScreenTypes.DETAIL) }
 
     Surface(
         modifier = Modifier
                 .fillMaxSize()
                 .background(color = MaterialTheme.colors.background)
     ) {
-        if (currentScreen === ScreenTypes.DETAIL) {
-            VideoDetailScreen(){
-                currentScreen = ScreenTypes.CATEGORY
-            }
-        } else {
-            CategoryScreen()
-        }
+//        if (currentScreen === ScreenTypes.DETAIL) {
+//            VideoDetailScreen(){
+//                currentScreen = ScreenTypes.CATEGORY
+//            }
+//        } else {
+//           CategoryScreen { productId ->
+//                currentScreen = ScreenTypes.DETAIL }
+//        }
+        AppNavigator()
     }
 
 }
